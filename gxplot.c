@@ -726,22 +726,22 @@ int main(int argc, char **argv){
         }
         // As long as the zoom origin is not in the legend then initiate a zoom
         else if(!(on_btn(plotter,btn_x,btn_y)) && !(in_pan(plotter,btn_x,btn_y)) && !(in_legend(plotter,btn_x,btn_y))){
-	  // Clear the old rectangle
-	  if(old_x > -1 && old_y > -1) XDrawRectangle(plotter->display,plotter->win,plotter->gc_xor,x_origin,y_origin,zbox_width,zbox_height);
-	
-	  // Check direction and set boundaries
-	  if(plotter->mouse_x>plotter->mouse_xmrk) { x_origin=plotter->mouse_xmrk; zbox_width=plotter->mouse_x-plotter->mouse_xmrk; }
-	  else { x_origin = plotter->mouse_x; zbox_width = plotter->mouse_xmrk-plotter->mouse_x; }
-	
-	  if(plotter->mouse_y>plotter->mouse_ymrk) { y_origin=plotter->mouse_ymrk; zbox_height = plotter->mouse_y-plotter->mouse_ymrk; }
-	  else { y_origin=plotter->mouse_y; zbox_height = plotter->mouse_ymrk-plotter->mouse_y; }
-	
-	  // Draw the new rectangle
+          // Clear the old rectangle
+          if(old_x > -1 && old_y > -1) XDrawRectangle(plotter->display,plotter->win,plotter->gc_xor,x_origin,y_origin,zbox_width,zbox_height);
+      
+          // Check direction and set boundaries
+          if(plotter->mouse_x>plotter->mouse_xmrk) { x_origin=plotter->mouse_xmrk; zbox_width=plotter->mouse_x-plotter->mouse_xmrk; }
+          else { x_origin = plotter->mouse_x; zbox_width = plotter->mouse_xmrk-plotter->mouse_x; }
+      
+          if(plotter->mouse_y>plotter->mouse_ymrk) { y_origin=plotter->mouse_ymrk; zbox_height = plotter->mouse_y-plotter->mouse_ymrk; }
+          else { y_origin=plotter->mouse_y; zbox_height = plotter->mouse_ymrk-plotter->mouse_y; }
+      
+          // Draw the new rectangle
           XDrawRectangle(plotter->display,plotter->win,plotter->gc_xor,x_origin,y_origin,zbox_width,zbox_height);
-	
-	  // Record the old x and y mouse position
-	  old_x=x_origin;
-	  old_y=y_origin;
+      
+          // Record the old x and y mouse position
+          old_x=x_origin;
+          old_y=y_origin;
           
           zooming=1;
         }
@@ -799,19 +799,19 @@ int main(int argc, char **argv){
     }
     else if(report.type == KeyRelease){
       if(report.xkey.window == plotter->win){
-	// Get the keysym
+      // Get the keysym
         key_str_len = XLookupString(&(report.xkey),key_str,key_str_size,&keysym,NULL);
         key_str[key_str_len] = '\0';
         
         // If a carriage return was pressed then go ahead and exit
         if(keysym == XK_Return || keysym == XK_KP_Enter || keysym == XK_Linefeed) {
-	  // For some reason, the application recieves the carriage return used to open
-	  // the window from the command line. This captures that and ignores it. I'm
-	  // not sure if this is expected as this behavior is not documented anywhere
-	  if(entry_return) break;
-	  else entry_return=1;
-	}
-	else if(keysym == XK_a){
+        // For some reason, the application recieves the carriage return used to open
+        // the window from the command line. This captures that and ignores it. I'm
+        // not sure if this is expected as this behavior is not documented anywhere
+        if(entry_return) break;
+        else entry_return=1;
+      }
+      else if(keysym == XK_a){
           // Change the specs readout to the next in line
           incr_specs_mode(plotter);
         }

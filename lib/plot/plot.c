@@ -196,7 +196,8 @@ void open_win(PLOT_T *pt){
   display_height = DisplayHeight(pt->display,DefaultScreen(pt->display));
   
   pt->win_width = MIN(1024,display_width);
-  pt->win_height = MIN(768,display_height);
+  //pt->win_height = MIN(768,display_height);
+  pt->win_height = pt->win_width/2;
   pt->border_width = 1;
     
   // Create the window
@@ -591,7 +592,7 @@ void draw_grid(PLOT_T *pt){
     disp_lbl[12]='\0'; // NULL terminate
     trim_label(disp_lbl,&tstart,&tend);
     
-    itexti = pt->grid_x - ((tend-tstart+1)*pt->font_width);
+    itexti = max (0, pt->grid_x - (int)((double)(tend-tstart+1)*(double)pt->font_width));
     //XDrawImageString(pt->display, pt->win, pt->gc_text, itexti, min(pt->grid_y2,i+jtext), disp_lbl+tstart, tend-tstart+1);
     XDrawString(pt->display, pt->win, pt->gc_text, itexti, min(pt->grid_y2,i+jtext), disp_lbl+tstart, tend-tstart+1);
   }
@@ -819,7 +820,7 @@ void draw_xpan_drag(PLOT_T *pt){
   // Keep track of the dimensions of the handle so we can tell
   // if the user has clicked it later
   pt->xpan_bar.hndl.x1 = pt->xpan_bar.drag_x1 + b_start;
-  pt->xpan_bar.hndl.y1 = pt->xpan_bar.drag_y1;
+  pt->xpan_bar.hndl.y1 = pt->xpan_bar.drag_y1+1;
   pt->xpan_bar.hndl.x2 = pt->xpan_bar.hndl.x1+b_width;
   pt->xpan_bar.hndl.y2 = pt->xpan_bar.drag_y1+pt->xpan_bar.ar_height;
   
@@ -1015,6 +1016,10 @@ void draw_ypan(PLOT_T *pt){
     arrow[2].y = p_yt+pt->ypan_bar.arrow[i][2].y;
     arrow[3].x = p_xt+pt->ypan_bar.arrow[i][3].x;
     arrow[3].y = p_yt+pt->ypan_bar.arrow[i][3].y;
+    //printf("Arrow piece %d: x= %d, y= %d\n",i,arrow[0].x,arrow[0].y);
+    //printf("                x= %d, y= %d\n",arrow[1].x,arrow[1].y);
+    //printf("                x= %d, y= %d\n",arrow[2].x,arrow[2].y);
+    //printf("                x= %d, y= %d\n",arrow[3].x,arrow[3].y);
     XFillPolygon(pt->display,pt->win, pt->gc_widget, arrow, npoints, Nonconvex, CoordModeOrigin);  
   
     // Reflect for the down arrow. When reflecting across the
@@ -1023,6 +1028,10 @@ void draw_ypan(PLOT_T *pt){
     arrow[1].y = p_yb+abs((int)pt->ypan_bar.ar_height-pt->ypan_bar.arrow[i][1].y);
     arrow[2].y = p_yb+abs((int)pt->ypan_bar.ar_height-pt->ypan_bar.arrow[i][2].y);
     arrow[3].y = p_yb+abs((int)pt->ypan_bar.ar_height-pt->ypan_bar.arrow[i][3].y);
+    //printf("Arrow piece %d: x= %d, y= %d\n",i,arrow[0].x,arrow[0].y);
+    //printf("                x= %d, y= %d\n",arrow[1].x,arrow[1].y);
+    //printf("                x= %d, y= %d\n",arrow[2].x,arrow[2].y);
+    //printf("                x= %d, y= %d\n",arrow[3].x,arrow[3].y);
     XFillPolygon(pt->display,pt->win, pt->gc_widget, arrow, npoints, Nonconvex, CoordModeOrigin);
   }
   
@@ -1119,10 +1128,15 @@ void zoom_npix(PLOT_T *pt,int x1, int y1, int x2, int y2){
   
   // Let's make sure that the zoom actually covers our
   // plotting field
+  // NOTE: This was way overkill for zoom checking. All we need to make sure
+  // of is that the zoom actually occurred somewhere on the plotting field.
+  /*
   if(((x2 > pt->grid_x && x2 < pt->grid_x2) && (y2 > pt->grid_y && y2 < pt->grid_y2)) ||
      ((x2 > pt->grid_x && x2 < pt->grid_x2) && (y1 > pt->grid_y && y1 < pt->grid_y2)) ||
      ((x1 > pt->grid_x && x1 < pt->grid_x2) && (y2 > pt->grid_y && y2 < pt->grid_y2)) ||
      ((x1 > pt->grid_x && x1 < pt->grid_x2) && (y1 > pt->grid_y && y1 < pt->grid_y2))){
+  */
+  if(x1 < pt->grid_x2 && y1 < pt->grid_y2 && x2 > pt->grid_x && y2 > pt->grid_y){
   
     // First we need to determine our realworld coordinates
     xy2rw(pt,x1,&x1_val,y1,&y1_val);
@@ -1297,6 +1311,7 @@ void load_font(PLOT_T *pt){
     
     // Record the height and width
     pt->font_height = pt->font_info->ascent + pt->font_info->descent;
+    //pt->font_width = pt->font_info->max_bounds.rbearing; // maybe width instead????
     pt->font_width = pt->font_info->max_bounds.rbearing; // maybe width instead????
   }
 }
